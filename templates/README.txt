@@ -1,0 +1,3 @@
+A Pen created at CodePen.io. You can find this one at https://codepen.io/slavisha84/pen/BexYMv.
+
+ Range Area Chart is a type of area chart where rather than starting on the axis, the area is represented by the space between two values. These charts are useful for displaying ranges of values, such as between minimum and maximum prices over a timespan, or projected values for the future when the projection is represented by a range instead of a specific value.
