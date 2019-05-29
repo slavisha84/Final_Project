@@ -14,19 +14,46 @@ app = Flask(__name__)
 Ocnx = sqlite3.connect('Outdoor.db', check_same_thread=False)
 Icnx = sqlite3.connect('Indoor.db', check_same_thread=False)
 
-def getData():
+def get_ind_Data():
+# Get inside data and produce C and F values 
+    ind_curs=Icnx.cursor()
+    for row in ind_curs.execute("SELECT * FROM BME_DATA ORDER BY TIME_STAMP DESC LIMIT 1"):
+        Ind_TemperatureC = row[2]
+        Ind_TemperatureF = round((row[2]* 9/5) + 32)
+        Ind_TemperatureC2 = row[2]+6
+        Ind_TemperatureF2 = round((row[2]* 9/5) + 32)+6
+        Ind_TemperatureC3 = row[2]+4
+        Ind_TemperatureF3 = round((row[2]* 9/5) + 32)+4
+        Ind_TemperatureC4 = row[2]+8
+        Ind_TemperatureF4 = round((row[2]* 9/5) + 32)+8
 
-    curs=Ocnx.cursor()
-    for row in curs.execute("SELECT * FROM BME_DATA ORDER BY TIME_STAMP DESC LIMIT 1"):
-        Temperature = row[2]
+    Icnx.close()
+    return Ind_TemperatureC, Ind_TemperatureF, Ind_TemperatureC2, Ind_TemperatureF2, Ind_TemperatureC3, Ind_TemperatureF3, Ind_TemperatureC4, Ind_TemperatureF4
+
+def get_out_Data():
+# Get inside data and produce C and F values 
+    out_curs=Ocnx.cursor()
+    for row in out_curs.execute("SELECT * FROM BME_DATA ORDER BY TIME_STAMP DESC LIMIT 1"):
+        Out_TemperatureC = row[2]
+        Out_TemperatureF = round((row[2]* 9/5) + 32)
     Ocnx.close()
-    return Temperature
+    return Out_TemperatureC, Out_TemperatureF
 
 
 @app.route("/")
 def index():
-    Temperature = getData()
-    templateData ={'Temperature': Temperature}
+    Ind_TemperatureC, Ind_TemperatureF, Ind_TemperatureC2, Ind_TemperatureF2,Ind_TemperatureC3, Ind_TemperatureF3,Ind_TemperatureC4, Ind_TemperatureF4 = get_ind_Data()
+    Out_TemperatureC, Out_TemperatureF = get_out_Data()
+    templateData = {'Ind_TemperatureC': Ind_TemperatureC,
+                    'Ind_TemperatureF': Ind_TemperatureF,
+                    'Out_TemperatureC': Out_TemperatureC,
+                    'Out_TemperatureF': Out_TemperatureF,
+                    'Ind_TemperatureC2': Ind_TemperatureC2,
+                    'Ind_TemperatureF2': Ind_TemperatureF2,
+                    'Ind_TemperatureC3': Ind_TemperatureC3,
+                    'Ind_TemperatureF3': Ind_TemperatureF3,
+                    'Ind_TemperatureC4': Ind_TemperatureC4,
+                    'Ind_TemperatureF4': Ind_TemperatureF4}
     return render_template('index.html', **templateData)
 
 
