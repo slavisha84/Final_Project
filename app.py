@@ -8,6 +8,10 @@ import plotly.offline as py
 import plotly.graph_objs as go
 from flask import Flask, render_template, request, json, jsonify
 
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
+import io
+
 app = Flask(__name__)
 
 # Create your connections with indoor and outdoor databases
@@ -57,8 +61,8 @@ def index():
     return render_template('index.html', **templateData)
 
 
-@app.route("/analysis")
-def analysis():
+@app.route('/plot')
+def plot_temp():
     Outdoor_df = pd.read_sql_query("SELECT * FROM BME_DATA", Ocnx)
     Indoor_df = pd.read_sql_query("SELECT * FROM BME_DATA", Icnx)
 
@@ -107,8 +111,11 @@ def analysis():
     # Indoor forecasting
     ind_future = ind.make_future_dataframe(periods= 1)
     ind_forecast = ind.predict(ind_future)
-    ind_df = ind_forecast.to_dict(orient='records')
-    return jsonify(ind_df)
+    #ind_df = ind_forecast.to_dict(orient='records')
+    #return jsonify(ind_df)
+    od_plot = od.plot(od_forecast)
+    
+    return od_plot
 
 if __name__ == '__main__':
     app.run(debug=True)
