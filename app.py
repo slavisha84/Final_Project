@@ -7,6 +7,7 @@ from fbprophet.plot import plot_plotly
 import plotly.offline as py
 import plotly.graph_objs as go
 from flask import Flask, render_template, request, json, jsonify
+import plotly.io as pio
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -31,7 +32,7 @@ def get_ind_Data():
         Ind_TemperatureC4 = row[2]+8
         Ind_TemperatureF4 = round((row[2]* 9/5) + 32)+8
 
-    Icnx.close()
+    #Icnx.close()
     return Ind_TemperatureC, Ind_TemperatureF, Ind_TemperatureC2, Ind_TemperatureF2, Ind_TemperatureC3, Ind_TemperatureF3, Ind_TemperatureC4, Ind_TemperatureF4
 
 def get_out_Data():
@@ -40,7 +41,7 @@ def get_out_Data():
     for row in out_curs.execute("SELECT * FROM BME_DATA ORDER BY TIME_STAMP DESC LIMIT 1"):
         Out_TemperatureC = row[2]
         Out_TemperatureF = round((row[2]* 9/5) + 32)
-    Ocnx.close()
+    #Ocnx.close()
     return Out_TemperatureC, Out_TemperatureF
 
 
@@ -61,7 +62,7 @@ def index():
     return render_template('index.html', **templateData)
 
 
-@app.route('/plot')
+@app.route("/analytics" , methods=['POST'])
 def plot_temp():
     Outdoor_df = pd.read_sql_query("SELECT * FROM BME_DATA", Ocnx)
     Indoor_df = pd.read_sql_query("SELECT * FROM BME_DATA", Icnx)
@@ -114,8 +115,38 @@ def plot_temp():
     #ind_df = ind_forecast.to_dict(orient='records')
     #return jsonify(ind_df)
     od_plot = od.plot(od_forecast)
-    
-    return od_plot
+    od_plot.savefig('plot/od_plot.png')
+
+    ind_plot = ind.plot(ind_forecast)
+    ind_plot.savefig('plot/ind_plot.png')
+
+    od_fig1 = od.plot_components(od_forecast)
+    od_fig1.savefig('plot/od_fig1.png')
+
+    ind_fig1 = ind.plot_components(ind_forecast)
+    ind_fig1.savefig('plot/ind_fig1.png')   
+
+# Producing full plot for outdoor data
+    fig5 = go.Figure([
+        go.Scatter(x=outdoor['ds'], y=outdoor['y'], name='y'),
+        go.Scatter(x=od_forecast['ds'], y=od_forecast['yhat'], name='yhat'),
+        go.Scatter(x=od_forecast['ds'], y=od_forecast['yhat_upper'], fill='tonexty', mode='none', name='upper'),
+        go.Scatter(x=od_forecast['ds'], y=od_forecast['yhat_lower'], fill='tonexty', mode='none', name='lower'),
+        go.Scatter(x=od_forecast['ds'], y=od_forecast['trend'], name='Trend')
+        ])
+    pio.write_image(fig5, "plot/Outdoor_f.png", width=800, height=600, scale=4)
+
+# Producing full plot for indoor data
+    fig6 = go.Figure([
+        go.Scatter(x=indoor['ds'], y=indoor['y'], name='y'),
+        go.Scatter(x=ind_forecast['ds'], y=ind_forecast['yhat'], name='yhat'),
+        go.Scatter(x=ind_forecast['ds'], y=ind_forecast['yhat_upper'], fill='tonexty', mode='none', name='upper'),
+        go.Scatter(x=ind_forecast['ds'], y=ind_forecast['yhat_lower'], fill='tonexty', mode='none', name='lower'),
+        go.Scatter(x=ind_forecast['ds'], y=ind_forecast['trend'], name='Trend')
+        ])
+    pio.write_image(fig5, "plot/Indoor_f.png", width=800, height=600, scale=4)
+
+    return render_template('analytics.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
