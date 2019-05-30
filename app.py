@@ -115,16 +115,16 @@ def plot_temp():
     #ind_df = ind_forecast.to_dict(orient='records')
     #return jsonify(ind_df)
     od_plot = od.plot(od_forecast)
-    od_plot.savefig('plot/od_plot.png')
+    od_plot.savefig('static/od_plot.png')
 
     ind_plot = ind.plot(ind_forecast)
-    ind_plot.savefig('plot/ind_plot.png')
+    ind_plot.savefig('static/ind_plot.png')
 
     od_fig1 = od.plot_components(od_forecast)
-    od_fig1.savefig('plot/od_fig1.png')
+    od_fig1.savefig('static/od_fig1.png')
 
     ind_fig1 = ind.plot_components(ind_forecast)
-    ind_fig1.savefig('plot/ind_fig1.png')   
+    ind_fig1.savefig('static/ind_fig1.png')   
 
 # Producing full plot for outdoor data
     fig5 = go.Figure([
@@ -134,7 +134,7 @@ def plot_temp():
         go.Scatter(x=od_forecast['ds'], y=od_forecast['yhat_lower'], fill='tonexty', mode='none', name='lower'),
         go.Scatter(x=od_forecast['ds'], y=od_forecast['trend'], name='Trend')
         ])
-    pio.write_image(fig5, "plot/Outdoor_f.png", width=800, height=600, scale=4)
+    pio.write_image(fig5, "static/Outdoor_f.png", width=800, height=600, scale=4)
 
 # Producing full plot for indoor data
     fig6 = go.Figure([
@@ -144,9 +144,9 @@ def plot_temp():
         go.Scatter(x=ind_forecast['ds'], y=ind_forecast['yhat_lower'], fill='tonexty', mode='none', name='lower'),
         go.Scatter(x=ind_forecast['ds'], y=ind_forecast['trend'], name='Trend')
         ])
-    pio.write_image(fig5, "plot/Indoor_f.png", width=800, height=600, scale=4)
+    pio.write_image(fig6, "static/Indoor_f.png", width=800, height=600, scale=4)
 
     return render_template('analytics.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True)     
