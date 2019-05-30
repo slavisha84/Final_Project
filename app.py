@@ -44,7 +44,7 @@ def get_out_Data():
     #Ocnx.close()
     return Out_TemperatureC, Out_TemperatureF
 
-
+# creating the index root to push the temperature to gages. 
 @app.route("/")
 def index():
     Ind_TemperatureC, Ind_TemperatureF, Ind_TemperatureC2, Ind_TemperatureF2,Ind_TemperatureC3, Ind_TemperatureF3,Ind_TemperatureC4, Ind_TemperatureF4 = get_ind_Data()
@@ -61,7 +61,7 @@ def index():
                     'Ind_TemperatureF4': Ind_TemperatureF4}
     return render_template('index.html', **templateData)
 
-
+# Creating analytics to run analysis and lunch the analytics.html
 @app.route("/analytics" , methods=['POST'])
 def plot_temp():
     Outdoor_df = pd.read_sql_query("SELECT * FROM BME_DATA", Ocnx)
@@ -112,8 +112,8 @@ def plot_temp():
     # Indoor forecasting
     ind_future = ind.make_future_dataframe(periods= 1)
     ind_forecast = ind.predict(ind_future)
-    #ind_df = ind_forecast.to_dict(orient='records')
-    #return jsonify(ind_df)
+   
+   # ploting nad saving the plots
     od_plot = od.plot(od_forecast)
     od_plot.savefig('static/od_plot.png')
 
